@@ -130,6 +130,7 @@ function getWeather(request, response) {
   //CREATE the query string to check for the existence of the location
   const SQL = `SELECT * FROM weathers WHERE location_id=$1;`;
   const values = [request.query.data.id];
+  console.log('WEATHER REQUEST', request.query.data);
 
   //Make the query of the database
   return client.query(SQL, values)
