@@ -1,4 +1,4 @@
-DROP TABLE weathers, meetups, locations, trails;
+DROP TABLE trails, yelps, movies, weathers, meetups, locations;
 
 CREATE TABLE IF NOT EXISTS locations(
     id SERIAL PRIMARY KEY,
