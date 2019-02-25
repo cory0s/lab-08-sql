@@ -171,7 +171,7 @@ function getWeather(request, response) {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
         console.log('From SQL');
-        response.send(result.rows[0]);
+        response.send(result.rows);
         //Otherwise get the location info from Dark Sky
       } else {
         const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
@@ -218,8 +218,7 @@ function getMeetups(request, response) {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
         console.log('From SQL');
-        response.send(result.rows[0]);
-        //Otherwise get the location info from Dark Sky
+        response.send(result.rows);
       } else {
         const url = `https://api.meetup.com/find/upcoming_events?&sign=true&photo-host=public&lon=${request.query.data.longitude}&page=10&lat=${request.query.data.latitude}&key=${process.env.MEETUP_API_KEY}`
 
@@ -257,7 +256,7 @@ function getHikes(request, response) {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
         console.log('From SQL');
-        response.send(result.rows[0]);
+        response.send(result.rows);
       } else {
         const url = `https://www.hikingproject.com/data/get-trails?lat=${request.query.data.latitude}&lon=${request.query.data.longitude}&maxDistance=10&key=${process.env.TRAILS_API_KEY}`;
 
@@ -291,7 +290,7 @@ function getMovies(request, response) {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
         console.log('From SQL');
-        response.send(result.rows[0]);
+        response.send(result.rows);
       } else {
         const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIES_API_KEY}&query=${request.query.data.search_query}`;
 
@@ -324,7 +323,7 @@ function getYelps(request, response) {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
         console.log('From SQL');
-        response.send(result.rows[0]);
+        response.send(result.rows);
       } else {
         const url = `https://api.yelp.com/v3/businesses/search?latitude=${request.query.data.latitude}&longitude=${request.query.data.longitude}`;
 
