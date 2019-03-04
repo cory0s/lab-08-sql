@@ -1,6 +1,7 @@
 # lab-08-sql
 
 # Project Name
+City Explorer
 
 **Author**: Cory Henderson
 **Version**: 1.0.0
