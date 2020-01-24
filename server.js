@@ -18,12 +18,18 @@ app.use(cors());
 // Database Setup
 // Enter the three lines of code from Image 1
 const client = new pg.Client(process.env.DATABASE_URL);
-client.connect();
+client.connect(err => {
+  if (err) {
+    console.error('connection error', err.stack)
+  } else {
+    console.log('connected to DB')
+  }
+});
 client.on('error', err => console.error(err));
 
 // API Routes
 app.get('/location', (request, response) => {
-  getLocation(request.query.data)
+  getLocation(request.query.city)
     .then(location => {
       console.log('27', location);
       response.send(location)
@@ -32,11 +38,11 @@ app.get('/location', (request, response) => {
 })
 
 // Do not comment in until you have locations in the DB
-app.get('/weather', getWeather);
-app.get('/meetups', getMeetups);
-app.get('/trails', getHikes);
-app.get('/movies', getMovies);
-app.get('/yelp', getYelps);
+// app.get('/weather', getWeather);
+// app.get('/meetups', getMeetups);
+// app.get('/trails', getHikes);
+// app.get('/movies', getMovies);
+// app.get('/yelp', getYelps);
 
 // Make sure the server is listening for requests
 app.listen(PORT, () => console.log(`Listening on ${PORT}`));
@@ -47,9 +53,9 @@ app.listen(PORT, () => console.log(`Listening on ${PORT}`));
 
 function Location(query, res) {
   this.search_query = query;
-  this.formatted_query = res.formatted_address;
-  this.latitude = res.geometry.location.lat;
-  this.longitude = res.geometry.location.lng;
+  this.formatted_query = res.display_name;
+  this.latitude = res.lat;
+  this.longitude = res.lon;
 }
 
 function Weather(day) {
@@ -122,17 +128,19 @@ function getLocation(query) {
 
         // Otherwise get the location information from the Google API
       } else {
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
+        const url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API_KEY}&q=${query}&format=json`;
 
         return superagent.get(url)
           .then(data => {
             console.log('FROM API line 90');
+            console.log('data body', data.body[0]);
             // Throw an error if there is a problem with the API request
-            if (!data.body.results.length) { throw 'no Data' }
-
+            if (!data.body.length) { 
+              throw 'no Data' 
+            }
             // Otherwise create an instance of Location
             else {
-              let location = new Location(query, data.body.results[0]);
+              let location = new Location(query, data.body[0]);
               console.log('98', location);
 
               // Create a query string to INSERT a new record with the location data
