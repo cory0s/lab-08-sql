@@ -38,7 +38,7 @@ app.get('/location', (request, response) => {
 })
 
 // Do not comment in until you have locations in the DB
-// app.get('/weather', getWeather);
+app.get('/weather', getWeather);
 // app.get('/meetups', getMeetups);
 // app.get('/trails', getHikes);
 // app.get('/movies', getMovies);
@@ -121,19 +121,18 @@ function getLocation(query) {
     .then(result => {
       // Check to see if the location was found and return the results
       if (result.rowCount > 0) {
-        console.log('From SQL');
-        console.log('RESULT.ROW[0]', result.rows[0]);
-        console.log('RESULT', result);
+        // console.log('From SQL');
+        // console.log('RESULT.ROW[0]', result.rows[0]);
+        // console.log('RESULT', result);
         return result.rows[0];
 
         // Otherwise get the location information from the Google API
       } else {
         const url = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API_KEY}&q=${query}&format=json`;
 
-        return superagent.get(url)
+        superagent.get(url)
           .then(data => {
             console.log('FROM API line 90');
-            console.log('data body', data.body[0]);
             // Throw an error if there is a problem with the API request
             if (!data.body.length) { 
               throw 'no Data' 
@@ -150,12 +149,12 @@ function getLocation(query) {
               console.log('104', newValues)
 
               // Add the record to the database
-              return client.query(newSQL, newValues)
+              client.query(newSQL, newValues)
                 .then(result => {
                   console.log('108', result.rows);
                   // Attach the id of the newly created record to the instance of location.
                   // This will be used to connect the location to the other databases.
-                  console.log('114', result.rows[0].id)
+                  // console.log('114', result.rows[0].id)
                   location.id = result.rows[0].id;
                   return location;
                 })
@@ -170,19 +169,19 @@ function getLocation(query) {
 function getWeather(request, response) {
   //CREATE the query string to check for the existence of the location
   const SQL = `SELECT * FROM weathers WHERE location_id=$1;`;
-  const values = [request.query.data.id];
-  console.log('WEATHER REQUEST', request.query.data.id);
+  const values = [request.query.id];
+  console.log('WEATHER REQUEST', request.query.id);
 
   //Make the query of the database
   return client.query(SQL, values)
     .then(result => {
       //Check to see if the location was foun and return the results
       if(result.rowCount > 0){
-        console.log('From SQL');
+        console.log('From SQL', result.rows);
         response.send(result.rows);
         //Otherwise get the location info from Dark Sky
       } else {
-        const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+        const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.latitude},${request.query.longitude}`;
 
         superagent.get(url)
           .then(result => {
@@ -194,16 +193,16 @@ function getWeather(request, response) {
             console.log('148', weatherSummaries) //array of objects
             weatherSummaries.forEach(summary => {
               let newValues = Object.values(summary);
-              newValues.push(request.query.data.id);
+              newValues.push(request.query.id);
 
               //Add the record to the database
               return client.query(newSQL, newValues)
-                .then(result => {
+                // .then(result => {
                   // console.log('155', result.rows);
                   //Attach the id of the newly created record to the instance of location
                   //This will be used to connect the location to the other databases
                   // console.log('158', result.rows[0].id);
-                })
+                // })
                 .catch(console.error);
             })
             response.send(weatherSummaries);
